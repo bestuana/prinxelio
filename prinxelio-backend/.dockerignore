@@ -1,0 +1,11 @@
+configs/.env
+keys/
+docs/
+**/*.md
+public/admin/
+public/admin.php
+.git/
+.gitignore
+node_modules/
+dist/
+tmp/

@@ -6,7 +6,7 @@
   <title>Prinxelio Digital Store</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="icon" href="/images/logo.png" type="image/png">
+  <link rel="icon" href="images/logo.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   
   <style>
@@ -778,10 +778,17 @@
       renderCategories();
     }
 
+    function resolveImagePath(p) {
+      if (!p) return 'https://placehold.co/200';
+      if (p.startsWith('http://') || p.startsWith('https://')) return p;
+      p = p.replace(/^\//, '');
+      return p.startsWith('images/') ? p : ('images/category/' + p);
+    }
+
     function renderCategories() {
       categorySlider.innerHTML = state.categories.map(c => `
         <div class="cat-item ${state.selectedCategory===c.category_name?'active':''}" data-name="${c.category_name}">
-          <div class="cat-thumb"><img src="${c.category_images || 'https://placehold.co/200'}" alt="${c.category_name}" /></div>
+          <div class="cat-thumb"><img src="${resolveImagePath(c.category_images)}" alt="${c.category_name}" /></div>
           <div class="cat-overlay" style="color:${c.category_color || '#333'}"></div>
           <div class="cat-name">${c.category_name}</div>
         </div>

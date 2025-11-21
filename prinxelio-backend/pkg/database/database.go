@@ -3,7 +3,6 @@ package database
 import (
     "database/sql"
     "fmt"
-    "log"
     "os"
     "strings"
 
@@ -13,10 +12,7 @@ import (
 
 // InitDB initializes the database connection and creates the tables.
 func InitDB() (*sql.DB, error) {
-	err := godotenv.Load("configs/.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
+    _ = godotenv.Load("configs/.env")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		os.Getenv("DB_USER"),

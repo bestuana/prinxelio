@@ -47,6 +47,10 @@ func (s *Server) staticWithCookie(h http.Handler) http.Handler {
 			return
 		}
 		full := filepath.Join("public", filepath.Clean(p))
+		if filepath.Ext(full) == ".php" {
+			http.NotFound(w, r)
+			return
+		}
 		if fi, err := os.Stat(full); err == nil {
 			if fi.IsDir() {
 				h.ServeHTTP(w, r)

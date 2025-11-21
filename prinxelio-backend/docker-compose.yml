@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: prinxelio-backend:latest
+    container_name: prinxelio-backend
+    ports:
+      - "3020:3020"
+    environment:
+      PORT: "3020"
+      DB_HOST: "REPLACE_ME"
+      DB_PORT: "3306"
+      DB_USER: "REPLACE_ME"
+      DB_PASS: "REPLACE_ME"
+      DB_NAME: "REPLACE_ME"
+      N8N_SECRETKEY_JWT: "REPLACE_ME"
+      N8N_WEBHOOK_URL_OTP: "https://n8n.prinxelio.com/webhook/N8N_WEBHOOK_URL_OTP"
+      N8N_WEBHOOK_URL_TRANSACTION_CREATE: "https://n8n.prinxelio.com/webhook/N8N_WEBHOOK_URL_TRANSACTION_CREATE"
+      PUBLIC_API_SECRET_KEY: "REPLACE_ME"
+      OTP_SECRET_KEY: "REPLACE_ME"
+      TIME_JWT: "1800"
+      TIME_OTP: "120"
+      AUTH_USER: "ADMIN"
+      AUTH_PASS: "ADMIN"
+    restart: unless-stopped
