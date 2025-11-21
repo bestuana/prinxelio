@@ -50,7 +50,7 @@ function redirect($url) {
 
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
     session_destroy();
-    redirect('index.php');
+    redirect('admin.php');
 }
 
 if (isset($_POST['login'])) {
@@ -58,7 +58,7 @@ if (isset($_POST['login'])) {
     $pass = $_POST['password'];
     if ($user === ADMIN_USER && $pass === ADMIN_PASS) {
         $_SESSION['admin_logged_in'] = true;
-        redirect('index.php');
+        redirect('admin.php');
     } else {
         $error_login = "Username atau Password salah!";
     }

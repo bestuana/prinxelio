@@ -69,24 +69,53 @@ func (s *Server) staticWithCookie(h http.Handler) http.Handler {
 }
 
 func (s *Server) adminProxy(w http.ResponseWriter, r *http.Request) {
-	target := os.Getenv("ADMIN_PHP_URL")
-	if target == "" {
-		target = "http://admin"
-	}
-	u, err := url.Parse(target)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	if r.URL.Path == "/admin" || r.URL.Path == "/admin/" {
-		r.URL.Path = "/admin.php"
-	} else {
-		p := strings.TrimPrefix(r.URL.Path, "/admin")
-		if p == "" {
-			p = "/"
-		}
-		r.URL.Path = p
-	}
-	r.Host = u.Host
-	httputil.NewSingleHostReverseProxy(u).ServeHTTP(w, r)
+    target := os.Getenv("ADMIN_PHP_URL")
+    if target == "" { target = "http://admin" }
+    u, err := url.Parse(target)
+    if err != nil { http.NotFound(w, r); return }
+    origHost := r.Host
+    scheme := "http"
+    if h := r.Header.Get("X-Forwarded-Proto"); h != "" { scheme = h }
+    proxy := httputil.NewSingleHostReverseProxy(u)
+    proxy.Director = func(req *http.Request) {
+        req.URL.Scheme = u.Scheme
+        req.URL.Host = u.Host
+        p := req.URL.Path
+        if p == "/admin" || p == "/admin/" || p == "/admin.php" || p == "/admin.php/" {
+            req.URL.Path = "/admin.php"
+        } else if strings.HasPrefix(p, "/admin.php") {
+            q := strings.TrimPrefix(p, "/admin.php")
+            if q == "" { q = "/admin.php" }
+            if !strings.HasPrefix(q, "/") { q = "/" + q }
+            req.URL.Path = q
+        } else if strings.HasPrefix(p, "/admin/") {
+            q := strings.TrimPrefix(p, "/admin")
+            if q == "" { q = "/" }
+            if !strings.HasPrefix(q, "/") { q = "/" + q }
+            req.URL.Path = q
+        } else {
+            req.URL.Path = "/admin.php"
+        }
+        req.Host = u.Host
+        req.Header.Set("X-Forwarded-Host", origHost)
+        req.Header.Set("X-Forwarded-Proto", scheme)
+    }
+    proxy.ModifyResponse = func(resp *http.Response) error {
+        loc := resp.Header.Get("Location")
+        if loc == "" { return nil }
+        lu, err := url.Parse(loc)
+        if err != nil { return nil }
+        if lu.Host == u.Host || lu.Host == "" {
+            np := lu.Path
+            if !strings.HasPrefix(np, "/admin") {
+                np = "/admin" + np
+            }
+            lu.Scheme = scheme
+            lu.Host = origHost
+            lu.Path = np
+            resp.Header.Set("Location", lu.String())
+        }
+        return nil
+    }
+    proxy.ServeHTTP(w, r)
 }
