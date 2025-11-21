@@ -1,6 +1,7 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.25-alpine AS builder
 WORKDIR /app
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata git
+ENV GOPROXY=https://proxy.golang.org,direct GOSUMDB=sum.golang.org GIT_TERMINAL_PROMPT=0
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
