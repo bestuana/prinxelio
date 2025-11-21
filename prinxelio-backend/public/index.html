@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <title>Prinxelio Digital Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="/images/logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* --- RESET & VARIABLES --- */
+    :root {
+      --primary: #181818;
+      --secondary: #ffffff;
+      --accent: #ba2026;
+      --gray-light: #f4f4f4;
+      --gray-border: #e5e5e5;
+      --text-color: #181818;
+      --text-muted: #767676;
+      --success: #00b862;
+      --error: #d32f2f;
+      --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --header-height: 70px;
+      /* Variabel khusus hero */
+      --hero-aspect: 16 / 9; /* Rasio aspek banner */
+      --hero-gap: 10px;      /* Jarak antar banner */
+    }
+
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: var(--font-main); margin: 0; background: var(--secondary); color: var(--text-color); -webkit-font-smoothing: antialiased; padding-top: var(--header-height); }
+    
+    /* --- UTILITIES --- */
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+    .hidden { display: none !important; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--primary); color: var(--secondary);
+      border: 1px solid var(--primary); padding: 14px 28px;
+      font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: var(--transition); width: 100%; text-decoration: none; max-width: 30rem;
+    }
+    .btn:hover { background: #333; border-color: #333;}
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-outline { background: transparent; color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: var(--secondary); }
+    .btn-white { background: #fff; color: #000; border-color: #fff; }
+    .btn-white:hover { background: #f0f0f0; color: #000; }
+
+    /* --- HEADER & SEARCH --- */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--primary);
+      backdrop-filter: blur(10px);
+      height: var(--header-height);
+      display: flex; align-items: center;
+    }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; }
+    
+    .brand { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; color: var(--secondary); cursor: pointer; transition: opacity 0.2s; display: inline-flex; align-items: center; gap: 10px; }
+    .brand-logo { height: 28px; width: 28px; object-fit: contain; border-radius: 5px;}
+    
+    .search-wrapper { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; }
+    
+    /* Desktop Search */
+    .search-box { position: relative; width: 100%; max-width: 300px; transition: var(--transition); }
+    .search-box input {
+      width: 100%; padding: 10px 40px 10px 15px; border: 1px solid var(--gray-border);
+      font-family: var(--font-main); font-size: 14px; border-radius: 4px; background: var(--secondary);
+    }
+    .search-box input:focus { border-color: var(--primary); background: #fff; }
+    .search-icon-btn { display: none; background: none; border: none; cursor: pointer; font-size: 20px; padding: 5px; }
+    .close-search-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: none; font-size: 18px; }
+
+    /* --- HERO SECTION --- */
+    /*
+      Desktop: gunakan grid 3 kolom x 2 baris dengan gap konsisten.
+      Mobile: gunakan aspect-ratio 16:9 dan slider (fade) penuh.
+    */
+    .hero-section {
+      position: relative;
+      overflow: hidden;
+      margin: 20px;
+      border-radius: 15px;
+    }
+
+    /* Kontainer slider (dipakai di mobile) */
+    .hero-slider { position: absolute; inset: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; gap: 10px;}
+    .hero-slider::-webkit-scrollbar { display: none; }
+    .banner-slide { position: relative; flex: 0 0 100%; scroll-snap-align: start; }
+    .banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
+
+    /* Grid desktop untuk banner hero */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--hero-gap);
+      position: relative;
+    }
+    .hero-banner {
+      width: 100%;
+      height: auto;
+      aspect-ratio: var(--hero-aspect);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+    .hero-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Penempatan area grid sesuai spesifikasi */
+    .hero-banner.div1 { grid-area: 1 / 1 / 3 / 3; height: -webkit-fill-available;}
+    .hero-banner.div2 { grid-area: 1 / 3 / 2 / 4; }
+    .hero-banner.div3 { grid-area: 2 / 3 / 3 / 4; }
+
+    /* Desktop override: kontainer hero tidak absolute agar tinggi mengikuti grid */
+    @media (min-width: 769px) {
+      .hero-slider { position: static; inset: auto; display: block; overflow: visible; }
+    }
+    
+    /* Background Slider Container */
+    .hero-bg-slider { position: absolute; inset: 0; z-index: 0; }
+    .bg-slide {
+      position: absolute; inset: 0; opacity: 0; transition: opacity 1.5s ease-in-out;
+      background-size: cover; background-position: center;
+    }
+    .bg-slide.active { opacity: 1; }
+    .bg-slide::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.75); } /* Overlay gelap */
+
+    /* Static Content */
+    .hero-static-content {
+      position: relative; z-index: 2; color: #fff; max-width: 800px; padding: 20px; text-align: center;
+    }
+    .hero-title { font-size: 3.5rem; font-weight: 900; text-transform: uppercase; margin: 0 0 15px; line-height: 1; }
+    .hero-desc { font-size: 1.2rem; font-weight: 300; margin-bottom: 25px; opacity: 0.9; }
+
+    /* --- CATEGORY SLIDER --- */
+    .category-section { margin: 0px; max-width: -webkit-fill-available; }
+    .category-title { font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 30px 0 10px; text-align: center; letter-spacing: 1px; }
+    .category-slider-wrap { position: relative; }
+    .category-slider { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; padding: 0; scrollbar-width: none; border-radius: 10px;}
+    .category-slider::-webkit-scrollbar { display: none; }
+    .cat-item { flex: 0 0 110px; width: 110px; height: 110px; border-radius: 8px; position: relative; cursor: pointer; border: 2px solid transparent; background: var(--gray-light); display: flex; align-items: center; justify-content: center; }
+    .cat-item.active { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(0,0,0,0.08); }
+    .cat-thumb { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; }
+    .cat-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .cat-overlay { position: absolute; inset: 0; border-radius: 8px; pointer-events: none; background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, currentColor 100%); }
+    .cat-name { position: absolute; bottom: 10px; left: 0; right: 0; z-index: 2; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 6px; text-align: center; }
+    .cat-nav { position: absolute; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid var(--gray-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .cat-nav.left { left: -10px; }
+    .cat-nav.right { right: -10px; }
+
+    @media (min-width: 1024px) {
+      .category-slider { padding: 0px; }
+      .cat-item { flex: 0 0 calc((100% - 48px)/4); width: calc((100% - 48px)/4); height: auto; aspect-ratio: 1 / 1; }
+    }
+
+    /* --- PRODUCT GRID (FIXED) --- */
+    .section-title { display: none; font-size: 24px; font-weight: 800; text-transform: uppercase; margin: 60px 0 30px; text-align: center; letter-spacing: 1px; }
+    
+    .grid-container { position: relative; overflow: hidden; transition: max-height 0.5s ease; }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      padding-bottom: 20px;
+    }
+    
+    .grid-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+      pointer-events: none; opacity: 0; transition: opacity 0.3s;
+    }
+    .grid-overlay.visible { opacity: 1; }
+    
+    .load-more-wrap { text-align: center;}
+    .load-more-wrap .btn { width: auto; min-width: 200px; }
+
+    /* --- CARD STYLE --- */
+    .card {
+      background: var(--secondary); cursor: pointer; transition: var(--transition);
+      display: flex; flex-direction: column; height: 100%; border: 1px solid transparent;
+      /* Fix overflow in grid */
+      min-width: 0; 
+    }
+    .card:hover { border-color: var(--gray-border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .card:hover .thumb img { transform: scale(1.05); }
+    
+    .thumb { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: var(--gray-light); border-radius: 4px; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .badge { position: absolute; top: 10px; left: 10px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 8px; text-transform: uppercase; }
+    
+    .card-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+    .card-title { font-size: 16px; font-weight: 700; margin: 0 0 6px; line-height: 1.3; }
+    .card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .price-wrap { display: flex; gap: 10px; margin-top: auto; align-items: center; justify-content: space-between; }
+    .price-left {display: flex;align-items: baseline;font-weight: 700;border-radius: 5px;color: #fff;flex-direction: column-reverse;}
+    .price-right { display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-weight: 700; }
+    .metric { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+    .metric svg { width: 16px; height: 16px; }
+    .price-final { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .price-original { font-size: 13px; text-decoration: line-through; color: var(--text-muted); }
+    .price-free {background: var(--success); color:#fff; padding: 2px 8px; border-radius: 4px; font-weight: 800;font-size: 1.3rem;margin-top: 3px; width: -webkit-fill-available; text-align: center; }
+
+    /* --- FEATURES SECTION --- */
+    .features { background: var(--gray-light); padding: 60px 0; margin-top: 40px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; text-align: center; }
+    .feature-item svg { width: 40px; height: 40px; margin-bottom: 15px; color: var(--primary); }
+    .feature-title { font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+    .feature-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+    /* --- CTA SECTION --- */
+    .cta-section { background: var(--primary); color: #fff; padding: 80px 20px; text-align: center; position: relative; overflow: hidden; }
+    .cta-section h2 { font-size: 2rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; }
+    .cta-section p { margin-bottom: 30px; opacity: 0.8; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .cta-bg-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+    .cta-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 100%); }
+    .cta-section .container { position: relative; z-index: 2; }
+
+    /* --- FOOTER --- */
+    footer { background: #111; color: #fff; padding: 40px 0 20px; font-size: 14px; }
+    .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; padding-bottom: 30px; border-bottom: 1px solid #333; }
+    .footer-col h4 { text-transform: uppercase; margin-bottom: 15px; font-weight: 700; }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; }
+    .footer-col ul li { margin-bottom: 10px; color: #999; cursor: pointer; transition: 0.2s; }
+    .footer-col ul li:hover { color: #fff; }
+    .copyright { text-align: center; padding-top: 20px; color: #666; font-size: 12px; }
+
+    .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+    .loader { height: 30px; width: 30px; border-radius: 50%; background-color: #fff; animation: 1.5s pulse infinite ease-in-out; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 #c4c4c4; } 100% { box-shadow: 0 0 0 30px #00000000; } }
+
+    /* --- MODALS --- */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-box {
+      background: #fff; width: 100%; max-width: 900px; position: relative;
+      transform: translateY(30px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden;
+    }
+    .modal-overlay.active .modal-box { transform: translateY(0); }
+    
+    .close-modal {
+      position: absolute; top: 15px; right: 15px; background: #fff; border-radius: 50%;
+      width: 36px; height: 36px; border: 1px solid #eee; font-size: 24px; cursor: pointer; z-index: 10;
+      display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    }
+    .close-modal:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* PDP Modal */
+    .pdp-layout { display: flex; height: 600px; }
+    .pdp-image { flex: 1.2; background: var(--gray-light); position: relative; }
+    .pdp-image img { width: 100%; height: 100%; object-fit: cover; }
+    .pdp-info { flex: 1; padding: 50px; display: flex; flex-direction: column; overflow-y: auto; }
+    .buy-wrap { position: sticky; bottom: 0; background: var(--secondary); padding: 0px; text-align: center; }
+    
+    .pdp-title { font-size: 32px; font-weight: 900; margin: 0 0 10px; text-transform: uppercase; line-height: 1.1; }
+    .pdp-price { display: flex;font-size: 24px;margin-bottom: 20px;font-weight: 600;justify-content: space-between;align-items: center;}
+    .pdp-desc { font-size: 15px; line-height: 1.6; color: #555; margin-bottom: 0px; border-top: 1px solid var(--gray-border); padding-top: 20px; text-align: justify;}
+
+    @media (min-width: 769px) {
+      .pdp-layout { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: 1fr auto; }
+      .pdp-image { grid-column: 1; grid-row: 1 / 3; }
+      .pdp-info { grid-column: 2; grid-row: 1; }
+      .buy-wrap { grid-column: 2; grid-row: 2; position: static; }
+    }
+
+    /* Small Modals */
+    .modal-box.small-modal { height: auto; padding: 30px; text-align: center; border-radius: 8px; max-width: 30rem;}
+    #modalPay { overflow-y: auto; align-items: flex-start; padding: 40px 0; }
+    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; }
+    .modal-desc {text-align: center; font-size: 0.8rem;}
+    .article-title { font-size: 24px; font-weight: 900; margin: 0 0 8px; text-transform: uppercase; }
+    .article-subtitle { font-size: 14px; font-weight: 600; color: #666; margin: 0 0 16px; text-transform: none; }
+    .article-content { text-align: left; font-size: 14px; line-height: 1.7; color: #333; }
+    .article-content p { margin: 0 0 12px;text-align: justify; }
+    .article-content ul, .article-content ol { margin: 8px 0 12px; padding-left: 1.2rem; }
+    .article-content li { margin: 6px 0; }
+    .article-content .qa-item { margin: 10px 0 14px; }
+    .article-content .qa-item strong { display: block; margin-bottom: 6px; }
+    .footer-col ul li a { color: inherit; text-decoration: none; display: inline-block; width: 100%; }
+    #modalInfo { overflow-y: auto; align-items: flex-center; padding: 40px 0; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;}
+    .form-input { width: 100%; padding: 14px; border: 1px solid #ccc; font-family: var(--font-main); font-size: 16px; border-radius: 4px; transition: 0.2s; text-align: center; }
+    .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,0,0,0.1); }
+    
+    .status-msg { margin-top: 5px;font-size: 13px;font-weight: 600;min-height: 20px;color: var(--text-muted);background: #e9e9e9;padding: 5px 0;border-radius: 5px;}
+    .status-msg:empty {display: none;}
+    .qr-container img { max-width: 180px; margin: 20px auto; display: block; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+    .payment-details { background: var(--gray-light); padding: 15px; margin: 20px 0; font-size: 14px; border-radius: 4px; text-align: left; }
+    .payment-details div { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 0 0.5rem;}
+    .payment-details div:first-child {display: flex;justify-content: center;margin-bottom: 10px;padding: 0.5rem;flex-direction: column;align-content: stretch;align-items: center;background: #e4e4e4;}
+    .payment-details div:last-child { margin-bottom: 0;font-weight: 700;border-top: 1px solid #ddd;margin-top: 10px;background: #000000;color: #fff;padding: 0.5rem 0.7rem;border-radius: 5px;}
+
+    /* Result Icon Animation */
+    .result-icon-wrap { margin-bottom: 20px; display: flex; justify-content: center; }
+    .circle-icon { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+    .circle-icon.success { background: rgba(0, 184, 98, 0.1); color: var(--success); }
+    .circle-icon.failed { background: rgba(211, 47, 47, 0.1); color: var(--error); }
+    .circle-icon.refund { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+    .circle-icon svg { width: 40px; height: 40px; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke: currentColor; animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    
+    @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    /* --- RESPONSIVE MEDIA QUERIES --- */
+    @media (max-width: 768px) {
+      :root { --header-height: 60px; }
+      
+      /* Mobile Header & Search */
+      .brand.hide-on-search { display: none; }
+      .search-wrapper { position: static; }
+      .search-box { 
+        display: none; position: absolute; top: 0px; left: 10px; right: 10px; width: auto; max-width: none; z-index: 10; 
+      }
+      .search-box.active { display: block; animation: slideDown 0.2s ease; }
+      .search-box input { padding-right: 40px; }
+      .search-icon-btn { display: block; }
+      .close-search-btn { display: block; }
+      
+      @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* Mobile Hero */
+      /* Pastikan kontainer hero memakai rasio aspek dan tinggi otomatis */
+      .hero-section { aspect-ratio: var(--hero-aspect); height: auto; }
+      /* Slider penuh layar pada kontainer hero */
+      .hero-slider { position: absolute; inset: 0; }
+      .hero-title { font-size: 2.5rem; }
+
+      /* Mobile Grid (FIXED) */
+      .grid { 
+        display: grid;
+        /* Memaksa 2 kolom dengan ukuran sama */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 12px; 
+      }
+      /* Mencegah overflow horizontal */
+      .card { min-width: 0; }
+      
+      .card-title { font-size: 14px; }
+      .price-final { font-size: 1.2rem; }
+      .price-original { font-size: 18px; }
+
+      /* Mobile Footer (FIXED) */
+      .footer-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 Kolom untuk baris pertama */
+        gap: 20px;
+        text-align: center;
+      }
+      /* Kolom ke-3 (Social) menjadi full width dan rata tengah */
+      .footer-col:nth-child(3) {
+        grid-column: 1 / -1; /* Span dari awal sampai akhir */
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      /* Mobile PDP (Full Screen) */
+      .modal-box { height: 100%; max-height: 100%; border-radius: 0; transform: translateY(100%); }
+      .modal-overlay.active .modal-box { transform: translateY(0); }
+      .pdp-layout { flex-direction: column; height: 100%; }
+      .pdp-image { flex: 0 0 auto; height: 40vh; }
+      .pdp-info { flex: 1; padding: 24px; border-radius: 20px 20px 0 0; margin-top: -20px; background: #fff; position: relative; z-index: 2; }
+      .close-modal { top: 10px; right: 10px; background: rgba(255,255,255,0.8); border: none; }
+      
+      /* Mobile Small Modals */
+      .modal-box.small-modal { width: 90%; padding: 20px; }
+      #modalPay { overflow-y: auto; align-items: flex-start; padding: 20px 0; }
+      #modalPay .modal-box { height: auto; max-height: none; }
+      /* Hide price-right on product cards for mobile overview */
+      .card .price-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingOverlay" class="loading-overlay hidden"><div class="loader"></div></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-inner">
+      <div class="brand" id="brandLogo" onclick="window.location.reload()"><img src="/images/logo.png" alt="Prinxelio" class="brand-logo">Prinxelio</div>
+      
+      <div class="search-wrapper">
+        <button class="search-icon-btn" id="searchTrigger">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        
+        <div class="search-box" id="searchBox">
+          <input id="search" type="text" placeholder="Cari produk..." />
+          <button class="close-search-btn" id="searchClose">&times;</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Slider (FIXED: Static Text, Dynamic BG) -->
+  <section class="hero-section">
+    <div class="hero-slider" id="heroSlider"></div>
+  </section>
+
+  <!-- Category Section -->
+  <section class="container category-section" id="categorySection">
+    <div class="section-title">Daftar Kategori</div>
+    <div class="category-slider-wrap">
+      <button class="cat-nav left" id="catPrev">&#10094;</button>
+      <div class="category-slider" id="categorySlider"></div>
+      <button class="cat-nav right" id="catNext">&#10095;</button>
+    </div>
+  </section>
+
+  <!-- Product Grid -->
+  <main class="container">
+    <div class="section-title" style="display: none">Daftar Produk</div>
+    
+    <div class="grid-container" id="gridContainer">
+      <div id="grid" class="grid">
+        <!-- Products injected here -->
+      </div>
+      <div id="gridOverlay" class="grid-overlay"></div>
+    </div>
+
+    <div class="load-more-wrap">
+      <button id="btnLoadMore" class="btn btn-outline hidden">LOAD MORE</button>
+    </div>
+  </main>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          <div class="feature-title">Pengiriman Instan</div>
+          <div class="feature-desc">Produk dikirim otomatis ke WhatsApp Anda dalam hitungan detik setelah pembayaran.</div>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <div class="feature-title">Pembayaran Aman</div>
+          <div class="feature-desc">Mendukung pembayaran QRIS dengan sistem verifikasi otomatis yang aman.</div>
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          <div class="feature-title">Bantuan 24/7</div>
+          <div class="feature-desc">Tim support kami siap membantu kendala aktivasi produk kapan saja.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <video class="cta-bg-video" src="/videos/cta1.mp4" autoplay muted loop playsinline></video>
+    <div class="cta-overlay"></div>
+    <div class="container">
+      <h2>Jelajahi Sekarang!</h2>
+      <p>Dapatkan produk digital favoritmu dengan harga terbaik sekarang juga.</p>
+      <button class="btn btn-white" onclick="document.getElementById('categorySection').scrollIntoView({behavior: 'smooth'})">LIHAT KATALOG</button>
+    </div>
+  </section>
+
+  <!-- Footer (FIXED Layout) -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>Prinxelio</h4>
+          <ul>
+            <li onclick="openFooterModal('about')">Tentang Kami</li>
+            <li onclick="openFooterModal('terms')">Syarat & Ketentuan</li>
+            <li onclick="openFooterModal('privacy')">Kebijakan Privasi</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Bantuan</h4>
+          <ul>
+            <li onclick="openFooterModal('purchase')">Cara Pembelian</li>
+            <li onclick="openFooterModal('contact')">Hubungi Kami</li>
+            <li onclick="openFooterModal('faq')">FAQ</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Social</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/prinxelio.id/" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="http://wa.me/628171223795" target="_blank" rel="noopener">Whatsapp</a></li>
+            <li><a href="mailto:cs@prinxelio.com">Email</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        &copy; 2023 Prinxelio Digital Store. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+
+  <!-- 1. Product Detail Modal -->
+  <div id="modalProduct" class="modal-overlay">
+    <div class="modal-box">
+      <button class="close-modal" onclick="closeAllModals()">&times;</button>
+      <div class="pdp-layout">
+        <div class="pdp-image">
+          <img id="pdpImg" src="" alt="Product Image">
+        </div>
+        <div class="pdp-info">
+          <h2 id="pdpTitle" class="pdp-title"></h2>
+          <div id="pdpPrice" class="pdp-price"></div>
+          <div id="pdpDesc" class="pdp-desc"></div>
+        </div>
+        <div class="buy-wrap">
+          <button class="btn" id="btnBuyNow">BELI SEKARANG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Auth/Phone Modal -->
+  <div id="modalAuth" class="modal-overlay">
+    <div class="modal-box small-modal">
+      <button class="close-modal" onclick="closeAllModals()">&times;</button>
+      <div class="modal-title">Verifikasi WhatsApp</div>
+      <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Transaksi ini memprioritaskan kecepatan dan kemudahan pelanggan oleh karena itu produk terpilih setelah pembayaran berhasil akan segera dikirim ke nomor yang dicantumkan!</p>
+      
+      <div class="form-group">
+        <label>Nomor WhatsApp</label>
+        <input id="waInput" class="form-input" type="tel" placeholder="628xxxxxxxxxx" inputmode="numeric" maxlength="15" />
+      </div>
+      
+      <div id="otpSection" class="hidden">
+        <div class="form-group">
+          <label>Kode OTP</label>
+          <input id="otpInput" class="form-input" type="text" placeholder="Masukan kode" inputmode="numeric" maxlength="6" />
+        </div>
+        <div id="otpCountdown" style="font-size: 12px; color: #666; margin-bottom: 10px;"></div>
+      </div>
+
+      <button class="btn" id="btnAuthAction">KIRIM OTP</button>
+      <div id="authStatus" class="status-msg"></div>
+    </div>
+  </div>
+
+  <!-- 3. Payment Modal -->
+  <div id="modalPay" class="modal-overlay">
+    <div class="modal-box small-modal">
+      <div class="modal-title">Pembayaran</div>
+      <p class="modal-desc">Selesaikan pembayaran sebelum waktu berakhir, atau pilih untuk batalkan transaksi! Pelanggan tidak dapat membuat transaksi ganda sebelum transaksi sebelumnya diselesaikan!</p>
+      <div class="qr-container" id="qrContainer"></div>
+      <div class="payment-details" id="payDetails"></div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button class="btn" id="btnCheckStatus">Cek Status</button>
+        <button class="btn btn-outline" id="btnCancelPay">Batalkan</button>
+      </div>
+      <div id="payStatus" class="status-msg"></div>
+    </div>
+  </div>
+
+  <!-- 4. Result Modal -->
+  <div id="modalResult" class="modal-overlay">
+    <div class="modal-box small-modal">
+      <div id="resultIcon" class="result-icon-wrap"></div>
+      <h2 id="resultTitle" class="modal-title"></h2>
+      <p id="resultDesc" style="margin-bottom: 25px; line-height: 1.5; color: #555;"></p>
+      <button class="btn" onclick="closeAllModals()">TUTUP</button>
+    </div>
+  </div>
+
+  <div id="modalInfo" class="modal-overlay">
+    <div class="modal-box small-modal">
+      <button class="close-modal" onclick="closeAllModals()">&times;</button>
+      <h2 id="footerModalTitle" class="article-title"></h2>
+      <div id="footerModalSubtitle" class="article-subtitle"></div>
+      <div id="footerModalContent" class="article-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    let pendingApi = 0;
+    function showLoading() { if (loadingOverlay) loadingOverlay.classList.remove('hidden'); }
+    function hideLoading() { if (loadingOverlay) loadingOverlay.classList.add('hidden'); }
+    function incLoading() { pendingApi++; showLoading(); }
+    function decLoading() { pendingApi = Math.max(0, pendingApi - 1); if (pendingApi === 0) hideLoading(); }
+    const skipLoadingPatterns = ['/api/transactions/status', '/api/products/view'];
+    function shouldSkipLoading(u) {
+      try {
+        const s = String(u);
+        if (skipLoadingPatterns.some(p => s.includes(p))) return true;
+        if (s.includes('/api/products') && s.includes('q=')) return true;
+        return false;
+      } catch(_) { return false; }
+    }
+    const _origFetch = window.fetch;
+    window.fetch = function(...args) {
+      const input = args[0];
+      const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
+      if (shouldSkipLoading(url)) {
+        return _origFetch(...args);
+      }
+      incLoading();
+      return _origFetch(...args).then(
+        r => { decLoading(); return r; },
+        e => { decLoading(); throw e; }
+      );
+    };
+    (function(){
+      const _origOpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+        this.__skipLoading = shouldSkipLoading(url);
+        return _origOpen.call(this, method, url, ...rest);
+      };
+      const _origSend = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.send = function(...args) {
+        if (!this.__skipLoading) incLoading();
+        this.addEventListener('loadend', function(){ if (!this.__skipLoading) decLoading(); }, { once: true });
+        return _origSend.apply(this, args);
+      };
+    })();
+    // --- STATE ---
+    const state = { 
+      products: [], 
+      categories: [],
+      selectedCategory: '',
+      visibleCount: 8, 
+      selectedProduct: null, 
+      token: null, 
+      reference: null, 
+      otpExpAt: 0,
+      ws: null,
+      payTimer: null,
+      pollTimer: null
+    };
+
+    // --- SLIDER IMAGES (Only Images) ---
+    const banners = [
+      { img: "/images/banner/banner1.png", categoryId: 1 },
+      { img: "/images/banner/banner2.png", productId: 5 },
+      { img: "/images/banner/banner3.png", productId: 7 }
+    ];
+
+    // --- DOM ELEMENTS ---
+    const grid = document.getElementById('grid');
+    const gridOverlay = document.getElementById('gridOverlay');
+    const btnLoadMore = document.getElementById('btnLoadMore');
+    const searchInput = document.getElementById('search');
+    const categorySlider = document.getElementById('categorySlider');
+    const catPrev = document.getElementById('catPrev');
+    const catNext = document.getElementById('catNext');
+    
+    // Mobile Search Elements
+    const brandLogo = document.getElementById('brandLogo');
+    const searchBox = document.getElementById('searchBox');
+    const searchTrigger = document.getElementById('searchTrigger');
+    const searchClose = document.getElementById('searchClose');
+
+    // --- INIT FUNCTIONS ---
+
+    function initSlider() {
+      const container = document.getElementById('heroSlider');
+      if (!container) return;
+      const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+
+      if (isDesktop) {
+        const slots = [banners[0], banners[1] || banners[0], banners[2] || banners[0]];
+        container.innerHTML = `
+          <div class="hero-grid">
+            <div class="hero-banner div1" data-product-id="${slots[0].productId || ''}" data-category-id="${slots[0].categoryId || ''}">
+              <img src="${slots[0].img}" alt="Banner">
+            </div>
+            <div class="hero-banner div2" data-product-id="${slots[1].productId || ''}" data-category-id="${slots[1].categoryId || ''}">
+              <img src="${slots[1].img}" alt="Banner">
+            </div>
+            <div class="hero-banner div3" data-product-id="${slots[2].productId || ''}" data-category-id="${slots[2].categoryId || ''}">
+              <img src="${slots[2].img}" alt="Banner">
+            </div>
+          </div>
+        `;
+        container.onclick = (e) => {
+          const el = e.target.closest('.hero-banner');
+          if (!el) return;
+          const pid = parseInt(el.getAttribute('data-product-id') || '', 10);
+          const cid = parseInt(el.getAttribute('data-category-id') || '', 10);
+          if (Number.isFinite(pid) && pid > 0) { openProductModal(pid); return; }
+          if (Number.isFinite(cid) && cid > 0) { activateCategoryById(cid); }
+        };
+        return;
+      }
+
+      const buildSlide = (b) => `
+        <div class="banner-slide" data-product-id="${b.productId || ''}" data-category-id="${b.categoryId || ''}">
+          <img src="${b.img}" alt="Banner">
+        </div>
+      `;
+      const items = [banners[banners.length - 1], ...banners, banners[0]];
+      container.innerHTML = items.map(buildSlide).join('');
+      const getW = () => container.clientWidth;
+      const goToIndex = (idx, behavior = 'auto') => { container.scrollTo({ left: getW() * (idx + 1), behavior }); };
+      let currentIndex = 0;
+      let autoTimer = null;
+      let scrollDebounce = null;
+      const computePosIndex = () => Math.round(container.scrollLeft / getW());
+      const updateIndexFromPosition = () => {
+        const p = computePosIndex();
+        if (p <= 0) currentIndex = banners.length - 1;
+        else if (p >= banners.length + 1) currentIndex = 0;
+        else currentIndex = p - 1;
+      };
+      const ensureLoop = () => {
+        const sw = getW();
+        const max = sw * (banners.length + 1);
+        const left = container.scrollLeft;
+        if (left <= 1) { container.scrollLeft = sw * banners.length; }
+        else if (left >= max - 1) { container.scrollLeft = sw; }
+        updateIndexFromPosition();
+      };
+      const scheduleNext = (delay = 10000) => {
+        if (autoTimer) clearTimeout(autoTimer);
+        autoTimer = setTimeout(() => {
+          currentIndex = (currentIndex + 1) % banners.length;
+          goToIndex(currentIndex, 'smooth');
+        }, delay);
+      };
+      goToIndex(0);
+      updateIndexFromPosition();
+      scheduleNext();
+      container.addEventListener('scroll', () => {
+        if (scrollDebounce) clearTimeout(scrollDebounce);
+        scrollDebounce = setTimeout(() => { ensureLoop(); scheduleNext(10000); }, 120);
+      });
+      ['pointerdown','touchstart','wheel'].forEach(ev => container.addEventListener(ev, () => scheduleNext(10000)));
+      container.onclick = (e) => {
+        const el = e.target.closest('.banner-slide');
+        if (!el) return;
+        const pid = parseInt(el.getAttribute('data-product-id') || '', 10);
+        const cid = parseInt(el.getAttribute('data-category-id') || '', 10);
+        if (Number.isFinite(pid) && pid > 0) { openProductModal(pid); return; }
+        if (Number.isFinite(cid) && cid > 0) { activateCategoryById(cid); }
+      };
+    }
+
+    function initMobileSearch() {
+      searchTrigger.onclick = () => {
+        searchBox.classList.add('active');
+        brandLogo.classList.add('hide-on-search');
+        searchInput.focus();
+      };
+      searchClose.onclick = () => {
+        searchBox.classList.remove('active');
+        brandLogo.classList.remove('hide-on-search');
+        searchInput.value = '';
+        fetchProducts(''); // Reset search
+      };
+    }
+
+    // --- CATEGORY LOGIC ---
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        const json = await res.json();
+        state.categories = json.data || [];
+      } catch (_) {
+        state.categories = [
+          {id:1, category_name:'Website', category_images:'https://example.com/cat1.jpg', category_color:'#FF5733'},
+          {id:2, category_name:'Ebook', category_images:'https://example.com/cat2.jpg', category_color:'#27AE60'},
+          {id:3, category_name:'Desain', category_images:'https://example.com/cat3.jpg', category_color:'#2980B9'},
+          {id:4, category_name:'AI Tools', category_images:'https://example.com/cat4.jpg', category_color:'#8E44AD'},
+          {id:5, category_name:'Audio', category_images:'https://example.com/cat5.jpg', category_color:'#F39C12'}
+        ];
+      }
+      renderCategories();
+    }
+
+    function renderCategories() {
+      categorySlider.innerHTML = state.categories.map(c => `
+        <div class="cat-item ${state.selectedCategory===c.category_name?'active':''}" data-name="${c.category_name}">
+          <div class="cat-thumb"><img src="${c.category_images || 'https://placehold.co/200'}" alt="${c.category_name}" /></div>
+          <div class="cat-overlay" style="color:${c.category_color || '#333'}"></div>
+          <div class="cat-name">${c.category_name}</div>
+        </div>
+      `).join('');
+      Array.from(categorySlider.querySelectorAll('.cat-item')).forEach(el => {
+        el.onclick = () => {
+          const name = el.getAttribute('data-name');
+          state.selectedCategory = (state.selectedCategory === name) ? '' : name;
+          renderCategories();
+          renderGrid();
+          centerSliderTo(el);
+        };
+      });
+      centerSliderDefault();
+    }
+
+    function centerSliderDefault() {
+      const sc = categorySlider.scrollWidth - categorySlider.clientWidth;
+      categorySlider.scrollLeft = Math.max(0, sc / 2);
+    }
+
+    function activateCategoryById(id) {
+      const run = () => {
+        const c = state.categories.find(x => x.id === id);
+        if (!c) return;
+        state.selectedCategory = c.category_name || '';
+        renderCategories();
+        renderGrid();
+        document.getElementById('categorySection').scrollIntoView({behavior: 'smooth'});
+      };
+      if (!state.categories || !state.categories.length) {
+        fetchCategories().then(run);
+      } else {
+        run();
+      }
+    }
+
+    function centerSliderTo(el) {
+      const rect = el.getBoundingClientRect();
+      const parentRect = categorySlider.getBoundingClientRect();
+      const offset = rect.left - parentRect.left - (parentRect.width/2 - rect.width/2);
+      categorySlider.scrollLeft += offset;
+    }
+
+    document.getElementById('catPrev').onclick = () => { categorySlider.scrollLeft -= categorySlider.clientWidth * 0.8; };
+    document.getElementById('catNext').onclick = () => { categorySlider.scrollLeft += categorySlider.clientWidth * 0.8; };
+
+    function getCategoryColor(name) {
+      if (!name) return '#333';
+      const c = state.categories.find(x => x.category_name === name);
+      if (c && c.category_color) return c.category_color;
+      const palette = ['#e74c3c','#27ae60','#2980b9','#8e44ad','#f39c12','#16a085','#d35400','#2c3e50'];
+      let sum = 0; for (let i = 0; i < name.length; i++) sum += name.charCodeAt(i);
+      return palette[sum % palette.length];
+    }
+
+    // --- PRODUCT LOGIC ---
+
+    async function fetchProducts(q='') {
+      try {
+        // Ganti URL ini dengan endpoint API Anda
+        const res = await fetch('/api/products' + (q ? `?q=${encodeURIComponent(q)}` : ''));
+        const json = await res.json();
+        state.products = json.data || [];
+        
+        state.visibleCount = 8; 
+        renderGrid();
+      } catch (e) {
+        console.error("API Error", e);
+        // Dummy Data for Preview
+        state.products = Array.from({length: 12}).map((_, i) => ({
+          id: i, 
+          product_name: `Product Demo ${i+1}`, 
+          product_price: 50000 + (i*1000), 
+          product_discount: i % 2 === 0 ? 45000 : 0,
+          product_discount_amount: i % 2 === 0 ? 10 : 0,
+          product_desc: "Deskripsi singkat produk digital yang sangat menarik.",
+          product_image: `https://placehold.co/400x400/181818/FFF?text=PRODUK+${i+1}`
+        }));
+        renderGrid();
+      }
+    }
+
+    function renderGrid() {
+      const filtered = state.selectedCategory ? state.products.filter(p => (p.category_name||'') === state.selectedCategory) : state.products;
+      const displayProducts = filtered.slice(0, state.visibleCount);
+      const hasMore = filtered.length > state.visibleCount;
+
+      grid.innerHTML = displayProducts.map(p => {
+        const isFree = (p.product_discount === 0) || (p.product_discount_amount === 100) || (p.product_price === 0);
+        const hasDiscount = p.product_discount > 0 && !isFree;
+        const priceHtml = isFree
+          ? `<div class="price-left"><span class="price-free"> F R E E </span><span class="price-original">${fmtMoney(p.product_price)}</span></div>`
+          : (hasDiscount 
+            ? `<div class="price-left"><span class="price-final">${fmtMoney(p.product_discount)}</span> <span class="price-original">${fmtMoney(p.product_price)}</span></div>`
+            : `<div class="price-left"><span class="price-final">${fmtMoney(p.product_price)}</span></div>`);
+
+        const rightHtml = `
+          <div class="price-right">
+            <span class="metric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${String(p.product_viewed||0).padStart(2,'0')}</span>
+            <span class="metric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> ${String(p.product_downloaded||0).padStart(2,'0')}</span>
+          </div>`;
+        
+        const catColor = getCategoryColor(p.category_name);
+        const catBadge = p.category_name ? `<div class="badge" style="left:auto; right:10px; background:${catColor}">#${p.category_name}</div>` : '';
+        const badgeHtml = `${p.product_discount_amount > 0 ? `<div class="badge">-${p.product_discount_amount}%</div>` : ''}${catBadge}`;
+
+        return `
+          <div class="card" onclick="openProductModal(${p.id})">
+            <div class="thumb">
+              ${badgeHtml}
+              <img src="${p.product_image || 'https://placehold.co/400'}" alt="${p.product_name}" loading="lazy" />
+            </div>
+            <div class="card-info">
+              <div class="card-title">${p.product_name}</div>
+              <div class="card-desc">${p.product_desc || ''}</div>
+              <div class="price-wrap">${priceHtml}${rightHtml}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Handle Load More UI
+      if (hasMore && displayProducts.length > 0) {
+        btnLoadMore.classList.remove('hidden');
+        gridOverlay.classList.add('visible');
+      } else {
+        btnLoadMore.classList.add('hidden');
+        gridOverlay.classList.remove('visible');
+      }
+    }
+
+    btnLoadMore.onclick = () => {
+      state.visibleCount += 8; // Load 8 more
+      renderGrid();
+    };
+
+    // --- MODAL & TRANSACTION LOGIC ---
+
+    const fmtMoney = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+
+    window.openProductModal = async function(id) {
+        const p = state.products.find(x => x.id === id);
+        if(!p) return;
+        state.selectedProduct = p;
+
+      document.getElementById('pdpImg').src = p.product_image || 'https://placehold.co/400';
+      document.getElementById('pdpTitle').textContent = p.product_name;
+      document.getElementById('pdpDesc').textContent = p.product_desc || 'Tidak ada deskripsi.';
+      
+      const isFree = (p.product_discount === 0) || (p.product_discount_amount === 100) || (p.product_price === 0);
+      const hasDiscount = p.product_discount > 0 && !isFree;
+      document.getElementById('pdpPrice').innerHTML = (isFree
+          ? `<div class="price-left"><span class="price-free"> F R E E </span><span class="price-original">${fmtMoney(p.product_price)}</span></div>`
+          : (hasDiscount 
+            ? `<div class="price-left"><span style="color:var(--accent); margin-right:10px;">${fmtMoney(p.product_discount)}</span> <span style="text-decoration:line-through; color:#999; font-size:18px;">${fmtMoney(p.product_price)}</span></div>`
+            : `<div class="price-left"><span>${fmtMoney(p.product_price)}</span></div>`)) +
+          `<div class="price-right">
+            <span class="metric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${String(p.product_viewed||0).padStart(2,'0')}</span>
+            <span class="metric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> ${String(p.product_downloaded||0).padStart(2,'0')}</span>
+          </div>`;
+
+        document.getElementById('modalProduct').classList.add('active');
+        try { await fetch('/api/products/view?id=' + encodeURIComponent(id), { method: 'POST' }); } catch(_) {}
+    };
+
+    document.getElementById('btnBuyNow').onclick = () => {
+      document.getElementById('modalProduct').classList.remove('active');
+      document.getElementById('modalAuth').classList.add('active');
+      document.getElementById('waInput').focus();
+      btnAuthEl.textContent = 'KIRIM OTP';
+      btnAuthEl.onclick = sendOtp;
+      handleWaInput();
+    };
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+      // Reset Auth UI
+      document.getElementById('otpSection').classList.add('hidden');
+      document.getElementById('btnAuthAction').textContent = 'KIRIM OTP';
+      document.getElementById('btnAuthAction').onclick = sendOtp;
+      document.getElementById('authStatus').textContent = '';
+      handleWaInput();
+      if(state.ws) state.ws.close();
+    }
+
+    // --- AUTH & PAYMENT ---
+    const waInputEl = document.getElementById('waInput');
+    const btnAuthEl = document.getElementById('btnAuthAction');
+    const otpInputEl = document.getElementById('otpInput');
+    btnAuthEl.onclick = sendOtp;
+
+    function normalizePhone(v) {
+      let digits = (v || '').replace(/\D/g, '');
+      if (digits.startsWith('08')) {
+        digits = '628' + digits.slice(2);
+      }
+      // trim to max 15 digits total
+      digits = digits.slice(0, 15);
+      return digits;
+    }
+
+    function isValidPhone(v) {
+      return /^628\d{1,12}$/.test(v);
+    }
+
+    function handleWaInput() {
+      const normalized = normalizePhone(waInputEl.value);
+      if (waInputEl.value !== normalized) waInputEl.value = normalized;
+      if (document.getElementById('otpSection').classList.contains('hidden')) {
+        btnAuthEl.disabled = !isValidPhone(normalized);
+      }
+    }
+
+    waInputEl.addEventListener('input', handleWaInput);
+    handleWaInput();
+
+    function normalizeOtp(v) {
+      return (v || '').replace(/\D/g, '').slice(0, 6);
+    }
+
+    function isValidOtp(v) {
+      return /^\d{6}$/.test(v);
+    }
+
+    function handleOtpInput() {
+      const normalized = normalizeOtp(otpInputEl.value);
+      if (otpInputEl.value !== normalized) otpInputEl.value = normalized;
+      btnAuthEl.disabled = !isValidOtp(normalized);
+    }
+
+    otpInputEl.addEventListener('input', handleOtpInput);
+
+    async function sendOtp() {
+      const phone = normalizePhone(waInputEl.value.trim());
+      if(!isValidPhone(phone)) {
+        btnAuthEl.disabled = true;
+        return updateAuthStatus('Nomor WhatsApp harus diawali 628 dan hanya angka');
+      }
+      btnAuthEl.disabled = true;
+      updateAuthStatus('Mengirim OTP...');
+      try {
+        const resp = await fetch('/api/otp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone })
+        });
+        const json = await resp.json();
+        if (json && json.status) {
+          document.getElementById('otpSection').classList.remove('hidden');
+          document.getElementById('btnAuthAction').textContent = 'VERIFIKASI';
+          document.getElementById('btnAuthAction').onclick = verifyOtp;
+          handleOtpInput();
+          updateAuthStatus('OTP dikirim');
+        } else {
+          updateAuthStatus((json && json.message) || 'Gagal mengirim OTP');
+          btnAuthEl.disabled = false;
+        }
+      } catch (e) {
+        updateAuthStatus('Tidak dapat terhubung ke server');
+        btnAuthEl.disabled = false;
+      }
+    }
+
+    async function verifyOtp() {
+      const phone = normalizePhone(waInputEl.value.trim());
+      const otp = normalizeOtp(otpInputEl.value.trim());
+      if(!isValidOtp(otp)) return updateAuthStatus('Masukan kode OTP 6 digit');
+      updateAuthStatus('Memverifikasi...');
+      btnAuthEl.disabled = true;
+      try {
+        const resp = await fetch('/api/otp/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, otp })
+        });
+        const json = await resp.json();
+        if (json && json.status && json.data && json.data.token) {
+          state.token = json.data.token; try { localStorage.setItem('jwt', state.token); } catch(_) {}
+          document.getElementById('modalAuth').classList.remove('active');
+          createTransaction();
+        } else {
+          updateAuthStatus((json && json.message) || 'Verifikasi OTP gagal');
+          handleOtpInput();
+        }
+      } catch (e) {
+        updateAuthStatus('Tidak dapat terhubung ke server');
+        handleOtpInput();
+      }
+    }
+
+    function updateAuthStatus(msg) { document.getElementById('authStatus').textContent = msg; }
+
+    function setPayCountdown(expTs) {
+      const el = document.getElementById('payCountdown');
+      if (state.payTimer) clearInterval(state.payTimer);
+      function tick() {
+        const now = Math.floor(Date.now() / 1000);
+        const r = expTs - now;
+        if (r <= 0) {
+          el.textContent = 'Waktu pembayaran berakhir';
+          clearInterval(state.payTimer);
+          try { if (state.ws) state.ws.close(); } catch(_) {}
+          stopPolling();
+          clearClientSession();
+          handleStatusChange('FAILED');
+          return;
+        }
+        const m = Math.floor(r / 60);
+        const s = r % 60;
+        el.textContent = `Sisa waktu: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }
+      tick();
+      state.payTimer = setInterval(tick, 1000);
+    }
+
+    function persistTransaction(tx) {
+      try { localStorage.setItem('ongoing_tx', JSON.stringify(tx)); } catch(e) {}
+    }
+
+    function clearPersistedTransaction() {
+      try { localStorage.removeItem('ongoing_tx'); } catch(e) {}
+    }
+
+    function clearClientSession() {
+      clearPersistedTransaction(); try { localStorage.removeItem('jwt'); } catch(_) {}
+      try {
+        document.cookie.split(';').forEach(function(c){
+          var eq = c.indexOf('=');
+          var name = (eq > -1 ? c.substr(0, eq) : c).trim();
+          if (name) document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+        });
+      } catch(_){ }
+      state.reference = null;
+      state.token = null;
+    }
+
+    function openWs(reference) {}
+
+    function startPolling() {
+      stopPolling();
+      state.pollTimer = setInterval(pollStatus, 5000);
+    }
+
+    function stopPolling() {
+      if (state.pollTimer) { clearInterval(state.pollTimer); state.pollTimer = null; }
+    }
+
+    async function pollStatus() {
+      if (!state.reference) return;
+      try {
+        const resp = await fetch(`/api/transactions/status?reference=${encodeURIComponent(state.reference)}`, { headers: { 'Authorization': 'Bearer ' + state.token } });
+        const json = await resp.json();
+        if (json && json.status && json.data && json.data.status) {
+          const st = json.data.status;
+          if (st === 'PAID') { clearPersistedTransaction(); handleStatusChange('PAID'); if(state.ws) state.ws.close(); stopPolling(); }
+          else if (st === 'FAILED') { clearPersistedTransaction(); handleStatusChange('FAILED'); if(state.ws) state.ws.close(); stopPolling(); }
+          else if (st === 'EXPIRED') { clearPersistedTransaction(); handleStatusChange('EXPIRED'); if(state.ws) state.ws.close(); stopPolling(); }
+          else if (st === 'REFUND') { clearPersistedTransaction(); handleStatusChange('REFUND'); if(state.ws) state.ws.close(); stopPolling(); }
+          else { document.getElementById('payStatus').textContent = 'Pembayaran belum masuk!'; }
+        }
+      } catch(_) {}
+    }
+
+    async function createTransaction() {
+      const phone = normalizePhone(document.getElementById('waInput').value.trim());
+      try {
+        const resp = await fetch('/api/transactions/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.token },
+          body: JSON.stringify({ product_id: state.selectedProduct.id, phone })
+        });
+        const json = await resp.json();
+        if (json && json.status) {
+          if (json.data && json.data.message === 'Transaksi Gratis!') {
+            handleStatusChange('PAID');
+            return;
+          }
+          const ref = json.data.reference;
+          const qr = json.data.qr_url;
+          const fee = json.data.total_fee;
+          const total = json.data.amount;
+          const exp = json.data.expired_time;
+          state.reference = ref;
+          document.getElementById('modalPay').classList.add('active');
+          document.getElementById('payStatus').textContent = 'Menunggu pembayaran...';
+          document.getElementById('qrContainer').innerHTML = `<div id="payCountdown" style="display: inline-block;position: relative;margin-top: 0.4rem;background: #ffe5e5;max-width: fit-content;text-align: center;align-items: center;padding: 0.5rem 1rem;border-radius: 10px;font-size: 0.9rem;font-weight: 700;color: #910000;"></div><img src="${qr}" alt="QR" style="max-width:220px;">`;
+          const base = state.selectedProduct.product_discount>0?state.selectedProduct.product_discount:state.selectedProduct.product_price;
+          document.getElementById('payDetails').innerHTML = `
+            <div><span>Reff:</span> <strong>${ref}</strong></div>
+            <div><span>Harga Produk:</span> <strong>${fmtMoney(base)}</strong></div>
+            <div><span>Biaya Admin:</span> <strong>${fmtMoney(fee)}</strong></div>
+            <div><span>TOTAL:</span> <strong>${fmtMoney(total)}</strong></div>
+          `;
+          setPayCountdown(exp);
+          startPolling();
+          persistTransaction({reference:ref, qr_url:qr, total_fee:fee, amount:total, expired_time:exp, base_price:base, product_id:state.selectedProduct.id});
+        } else {
+          handleStatusChange('FAILED');
+        }
+      } catch(e) {
+        handleStatusChange('FAILED');
+      }
+    }
+
+    document.getElementById('btnCheckStatus').onclick = async () => {
+      if (!state.reference) return;
+      try {
+        const resp = await fetch(`/api/transactions/status?reference=${encodeURIComponent(state.reference)}`, { headers: { 'Authorization': 'Bearer ' + state.token } });
+        const json = await resp.json();
+        if (json && json.status && json.data && json.data.status) {
+          const st = json.data.status;
+          if (st === 'PAID') { clearPersistedTransaction(); handleStatusChange('PAID'); if(state.ws) state.ws.close(); }
+          else if (st === 'FAILED') { clearPersistedTransaction(); handleStatusChange('FAILED'); if(state.ws) state.ws.close(); }
+          else if (st === 'EXPIRED') { clearPersistedTransaction(); handleStatusChange('EXPIRED'); if(state.ws) state.ws.close(); }
+          else if (st === 'REFUND') { clearPersistedTransaction(); handleStatusChange('REFUND'); if(state.ws) state.ws.close(); }
+          else { document.getElementById('payStatus').textContent = 'Pembayaran belum masuk!'; }
+        }
+      } catch(_) {}
+    };
+
+    document.getElementById('btnCancelPay').onclick = async () => {
+      if (!state.reference) return;
+      try {
+        await fetch(`/api/transactions/cancel?reference=${encodeURIComponent(state.reference)}`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + state.token } });
+      } catch(_) {}
+      clearPersistedTransaction();
+      handleStatusChange('FAILED');
+      if(state.ws) state.ws.close();
+      stopPolling();
+    };
+
+    function handleStatusChange(st) {
+      document.getElementById('modalPay').classList.remove('active');
+      const iconContainer = document.getElementById('resultIcon');
+      if (state.payTimer) { clearInterval(state.payTimer); state.payTimer = null; }
+      stopPolling();
+      if(st === 'PAID' || st === 'SUCCESS') {
+        iconContainer.innerHTML = `<div class="circle-icon success"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`;
+        showResult('PEMBAYARAN BERHASIL', 'Terima kasih! Produk digital Anda sudah dikirimkan melalui WhatsApp.');
+      } else if (st === 'EXPIRED') {
+        iconContainer.innerHTML = `<div class="circle-icon failed"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
+        showResult('PEMBAYARAN KADALUARSA', 'Mohon maaf transaksi kadaluarsa. Silakan buat transaksi baru.');
+      } else if (st === 'REFUND') {
+        iconContainer.innerHTML = `<div class="circle-icon refund"><svg viewBox="0 0 24 24"><path d="M12 6v4l3-3"></path><path d="M20 12a8 8 0 1 1-8-8"></path></svg></div>`;
+        showResult('PEMBAYARAN DIKEMBALIKAN', 'Mohon maaf pembayaran gagal. Dana Anda telah dikembalikan, silakan cek mutasi pembayaran.');
+      } else {
+        iconContainer.innerHTML = `<div class="circle-icon failed"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
+        showResult('PEMBAYARAN GAGAL', 'Transaksi berhasil dibatalkan. Silahkan coba lagi.');
+      }
+    }
+
+    function showResult(title, desc) {
+      document.getElementById('resultTitle').textContent = title;
+      document.getElementById('resultDesc').textContent = desc;
+      document.getElementById('modalResult').classList.add('active');
+    }
+
+    function getIdFromUrl() {
+      const sp = new URLSearchParams(location.search);
+      let id = parseInt(sp.get('id') || '', 10);
+      if (!id && location.pathname.toLowerCase().startsWith('/id')) {
+        const m = (location.search || '').match(/=([0-9]+)/);
+        if (m && m[1]) { id = parseInt(m[1], 10); }
+      }
+      return Number.isFinite(id) && id > 0 ? id : null;
+    }
+
+    function tryOpenByUrl() {
+      const id = getIdFromUrl();
+      if (id) { openProductModal(id); clearDetailFromUrl(); }
+    }
+
+    function clearDetailFromUrl() {
+      history.replaceState(null, '', '/');
+    }
+
+    initSlider();
+    initMobileSearch();
+    fetchCategories();
+    searchInput.oninput = (e) => fetchProducts(e.target.value);
+    fetchProducts().then(tryOpenByUrl);
+    try {
+      state.token = localStorage.getItem('jwt') || state.token;
+      const raw = localStorage.getItem('ongoing_tx');
+      if (raw) {
+        const tx = JSON.parse(raw);
+        state.reference = tx.reference;
+        document.getElementById('modalPay').classList.add('active');
+        document.getElementById('qrContainer').innerHTML = `<div id="payCountdown" style="display: inline-block;position: relative;margin-top: 0.4rem;background: #ffe5e5;max-width: fit-content;text-align: center;align-items: center;padding: 0.5rem 1rem;border-radius: 10px;font-size: 0.9rem;font-weight: 700;color: #910000;"></div><img src="${tx.qr_url}" alt="QR" style="max-width:220px;">`;
+        document.getElementById('payDetails').innerHTML = `
+          <div><span>Reff:</span> <strong>${tx.reference}</strong></div>
+          <div><span>Harga Produk:</span> <strong>${fmtMoney(tx.base_price)}</strong></div>
+          <div><span>Biaya Admin:</span> <strong>${fmtMoney(tx.total_fee)}</strong></div>
+          <div><span>TOTAL:</span> <strong>${fmtMoney(tx.amount)}</strong></div>
+        `;
+        setPayCountdown(tx.expired_time);
+        startPolling();
+        document.getElementById('payStatus').textContent = 'Menunggu pembayaran...';
+      }
+    } catch(e) {}
+
+    const footerContentMap = {
+      about: {
+        title: 'Tentang Prinxelio',
+        subtitle: 'Toko digital cepat, aman, dan ramah pelanggan',
+        html: `
+          <p>Prinxelio adalah toko digital yang berfokus pada kemudahan, kecepatan, dan keamanan transaksi. Kami menghadirkan produk digital pilihan dengan pengiriman instan ke WhatsApp setelah pembayaran terverifikasi.</p>
+          <p>Komitmen kami adalah pengalaman belanja yang menyenangkan: transparan, harga kompetitif, dan dukungan pelanggan yang responsif.</p>
+          <ul>
+            <li>Produk digital resmi dan terverifikasi.</li>
+            <li>Pembayaran QRIS dengan verifikasi otomatis.</li>
+            <li>Pengiriman instan via WhatsApp.</li>
+            <li>Dukungan pelanggan 24/7 untuk kendala aktivasi.</li>
+          </ul>
+        `
+      },
+      terms: {
+        title: 'Syarat & Ketentuan',
+        subtitle: 'Ketentuan penggunaan layanan dan pembelian produk',
+        html: `
+          <ol>
+            <li>Pelanggan wajib menggunakan nomor WhatsApp aktif untuk verifikasi dan pengiriman.</li>
+            <li>Transaksi yang telah berhasil dan produk terkirim tidak dapat dibatalkan.</li>
+            <li>Harga, stok, dan promo dapat berubah sewaktu-waktu tanpa pemberitahuan.</li>
+            <li>Pelanggan bertanggung jawab atas keakuratan data yang diberikan saat transaksi.</li>
+            <li>Segala bentuk penyalahgunaan layanan akan diblokir tanpa pemberitahuan.</li>
+          </ol>
+          <p>Dengan bertransaksi di Prinxelio, Anda menyetujui seluruh ketentuan di atas.</p>
+        `
+      },
+      privacy: {
+        title: 'Kebijakan Privasi',
+        subtitle: 'Cara kami mengelola dan melindungi data pribadi Anda',
+        html: `
+          <ul>
+            <li>Kami mengumpulkan nomor WhatsApp untuk keperluan verifikasi OTP dan pengiriman produk.</li>
+            <li>Data transaksi disimpan untuk penagihan, audit, dan peningkatan layanan.</li>
+            <li>Kami tidak membagikan data pribadi kepada pihak ketiga tanpa persetujuan kecuali diwajibkan oleh hukum.</li>
+            <li>Keamanan data dijaga dengan standar industri dan praktik terbaik.</li>
+          </ul>
+          <p>Untuk permintaan akses, perubahan, atau penghapusan data, hubungi kami melalui WhatsApp atau email layanan.</p>
+        `
+      },
+      purchase: {
+        title: 'Cara Pembelian',
+        subtitle: 'Langkah sederhana untuk mendapatkan produk digital',
+        html: `
+          <ol>
+            <li>Pilih produk dari katalog dan buka detailnya.</li>
+            <li>Masukkan nomor WhatsApp untuk verifikasi.</li>
+            <li>Lakukan verifikasi OTP yang dikirim ke WhatsApp Anda.</li>
+            <li>Lakukan pembayaran menggunakan QRIS.</li>
+            <li>Produk akan dikirim otomatis ke WhatsApp setelah pembayaran terverifikasi.</li>
+          </ol>
+          <p>Butuh bantuan? Buka menu Hubungi Kami untuk terhubung dengan tim support.</p>
+        `
+      },
+      contact: {
+        title: 'Hubungi Kami',
+        subtitle: 'Tim support siap membantu kendala aktivasi dan transaksi',
+        html: `
+          <p>Silakan hubungi kami melalui kanal berikut:</p>
+          <ul>
+            <li>WhatsApp: <a href="http://wa.me/628171223795" target="_blank" rel="noopener">628171223795</a></li>
+            <li>Email: <a href="mailto:cs@prinxelio.com">cs@prinxelio.com</a></li>
+            <li>Instagram: <a href="https://www.instagram.com/prinxelio.id/" target="_blank" rel="noopener">@prinxelio.id</a></li>
+          </ul>
+          <p>Jam operasional: 24/7 untuk bantuan aktivasi dan verifikasi.</p>
+        `
+      },
+      faq: {
+        title: 'FAQ',
+        subtitle: 'Pertanyaan yang sering diajukan',
+        html: `
+          <div class="qa-item"><strong>Bagaimana cara menerima produk?</strong><p>Produk dikirim otomatis ke nomor WhatsApp yang diverifikasi setelah pembayaran berhasil.</p></div>
+          <div class="qa-item"><strong>Metode pembayaran apa yang didukung?</strong><p>Kami mendukung QRIS dengan verifikasi otomatis melalui sistem backend.</p></div>
+          <div class="qa-item"><strong>Apakah transaksi bisa dibatalkan?</strong><p>Transaksi yang sudah berhasil dan produk terkirim tidak dapat dibatalkan.</p></div>
+          <div class="qa-item"><strong>Bagaimana jika OTP tidak masuk?</strong><p>Pastikan nomor WhatsApp aktif dan sinyal baik. Jika masih gagal, hubungi kami melalui WhatsApp.</p></div>
+        `
+      }
+    };
+
+    window.openFooterModal = function(key) {
+      const entry = footerContentMap[key];
+      if (!entry) return;
+      document.getElementById('footerModalTitle').textContent = entry.title;
+      document.getElementById('footerModalSubtitle').textContent = entry.subtitle || '';
+      document.getElementById('footerModalContent').innerHTML = entry.html || '';
+      document.getElementById('modalInfo').classList.add('active');
+    };
+
+  </script>
+</body>
+</html>

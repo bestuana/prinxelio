@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Prinxelio API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:3010/api/products", "host": ["http://localhost"], "port": "3010", "path": ["api","products"]}
+      }
+    },
+    {
+      "name": "Search Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:3010/api/products?q=ebook", "host": ["http://localhost"], "port": "3010", "path": ["api","products"], "query": [{"key":"q","value":"ebook"}]}
+      }
+    },
+    {
+      "name": "Send OTP",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"phone\": \"6281234567890\"\n}"},
+        "url": {"raw": "http://localhost:3010/api/otp/send", "host": ["http://localhost"], "port": "3010", "path": ["api","otp","send"]}
+      }
+    },
+    {
+      "name": "Verify OTP",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"phone\": \"6281234567890\",\n  \"otp\": \"123456\"\n}"},
+        "url": {"raw": "http://localhost:3010/api/otp/verify", "host": ["http://localhost"], "port": "3010", "path": ["api","otp","verify"]}
+      }
+    },
+    {
+      "name": "Create Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key":"Content-Type","value":"application/json"},
+          {"key":"Authorization","value":"Bearer {{jwt_token}}"}
+        ],
+        "body": {"mode":"raw","raw":"{\n  \"product_id\": 1,\n  \"phone\": \"6281234567890\"\n}\n// backend akan menghitung amount dan mengirim ke webhook tanpa reference"},
+        "url": {"raw": "http://localhost:3010/api/transactions/create", "host": ["http://localhost"], "port": "3010", "path": ["api","transactions","create"]}
+      }
+    },
+    {
+      "name": "Get Transaction Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "http://localhost:3010/api/transactions/status?reference={{reference}}", "host": ["http://localhost"], "port": "3010", "path": ["api","transactions","status"], "query": [{"key":"reference","value":"{{reference}}"}]}
+      }
+    },
+    {
+      "name": "Cancel Transaction",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {"raw": "http://localhost:3010/api/transactions/cancel?reference={{reference}}", "host": ["http://localhost"], "port": "3010", "path": ["api","transactions","cancel"], "query": [{"key":"reference","value":"{{reference}}"}]}
+      }
+    },
+    {
+      "name": "Admin Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [{"key":"Authorization","value":"Basic {{admin_basic}}"}],
+        "url": {"raw": "http://localhost:3010/admin/dashboard", "host": ["http://localhost"], "port": "3010", "path": ["admin","dashboard"]}
+      }
+    },
+    {
+      "name": "Admin Products List",
+      "request": {
+        "method": "GET",
+        "header": [{"key":"Authorization","value":"Basic {{admin_basic}}"}],
+        "url": {"raw": "http://localhost:3010/admin/products", "host": ["http://localhost"], "port": "3010", "path": ["admin","products"]}
+      }
+    }
+  ],
+  "variable": [
+    {"key":"jwt_token","value":""},
+    {"key":"reference","value":""},
+    {"key":"admin_basic","value":"QURNSU46QURNSU4="}
+  ]
+}

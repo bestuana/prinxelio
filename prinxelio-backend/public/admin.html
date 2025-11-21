@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Prinxelio</title>
+  <!-- Pastikan file CSS Anda disimpan dengan nama admin.css -->
+  <link href="/admin.css" rel="stylesheet">
+  <style>
+    /* Tambahan style kecil untuk transisi modal */
+    .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .modal.active { opacity: 1; visibility: visible; }
+    .modal-content { transform: scale(0.95); transition: all 0.3s ease; }
+    .modal.active .modal-content { transform: scale(1); }
+    .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #465fff; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; z-index: 1000; transform: translateY(100px); transition: transform 0.3s ease; }
+    .toast.show { transform: translateY(0); }
+    .toast.success { background-color: var(--color-success-500); }
+    .toast.error { background-color: var(--color-error-500); }
+  </style>
+</head>
+<body class="bg-gray-50 font-outfit text-gray-700 dark:bg-gray-900 dark:text-gray-200">
+
+  <!-- --- LOGIN SECTION --- -->
+  <section id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-lg p-8 w-full max-w-md border border-gray-200 dark:border-gray-700">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Admin Login</h2>
+        <p class="text-gray-500 mt-2">Masuk untuk mengelola website</p>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Username</label>
+          <input id="user" type="text" class="w-full rounded-lg border-gray-300 bg-transparent py-2.5 px-4 text-gray-800 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="Masukkan username">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Password</label>
+          <input id="pass" type="password" class="w-full rounded-lg border-gray-300 bg-transparent py-2.5 px-4 text-gray-800 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="••••••••">
+        </div>
+        <button id="doLogin" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-medium py-3 rounded-lg transition duration-200 shadow-theme-sm">
+          Masuk Dashboard
+        </button>
+        <div id="loginStatus" class="text-center text-sm text-error-500 mt-2 min-h-[20px]"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --- MAIN PANEL --- -->
+  <div id="panel" class="flex h-screen overflow-hidden hidden">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col z-50 hidden md:flex">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h1 class="text-xl font-bold text-brand-500">PRINXELIO<span class="text-gray-800 dark:text-white">ADMIN</span></h1>
+      </div>
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <button onclick="showPage('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          Dashboard
+        </button>
+        <button onclick="showPage('products')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          Produk
+        </button>
+      </nav>
+      <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+        <button id="logout" class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-red-500 text-red-500 hover:bg-red-50 rounded-lg transition">
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+      <!-- Mobile Header -->
+      <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center md:hidden">
+        <span class="font-bold text-brand-500">PRINXELIO ADMIN</span>
+        <button id="mobileLogout" class="text-sm text-red-500">Logout</button>
+      </header>
+
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+        
+        <!-- VIEW: DASHBOARD -->
+        <div id="view-dashboard" class="page-view">
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Dashboard Overview</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card Views -->
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-theme-sm">
+              <div class="text-gray-500 text-sm mb-1">Total Views</div>
+              <div id="dash-views" class="text-2xl font-bold text-gray-800 dark:text-white">0</div>
+            </div>
+            <!-- Card Purchases -->
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-theme-sm">
+              <div class="text-gray-500 text-sm mb-1">Total Pembelian</div>
+              <div id="dash-purchases" class="text-2xl font-bold text-brand-500">0</div>
+            </div>
+            <!-- Card Paid -->
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-theme-sm">
+              <div class="text-gray-500 text-sm mb-1">Transaksi Berhasil</div>
+              <div id="dash-paid" class="text-2xl font-bold text-success-500">0</div>
+            </div>
+            <!-- Card Failed -->
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-theme-sm">
+              <div class="text-gray-500 text-sm mb-1">Transaksi Gagal</div>
+              <div id="dash-failed" class="text-2xl font-bold text-error-500">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: PRODUCTS -->
+        <div id="view-products" class="page-view hidden">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Daftar Produk</h2>
+            <button onclick="openModal('add')" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-theme-sm transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              Tambah Produk
+            </button>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-theme-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                  <tr>
+                    <th class="p-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
+                    <th class="p-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+                    <th class="p-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Diskon</th>
+                    <th class="p-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="productTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                  <!-- Data loaded via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- --- MODAL FORM (ADD/EDIT) --- -->
+  <div id="productModal" class="modal fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4">
+    <div class="modal-content bg-white dark:bg-gray-800 w-full max-w-lg rounded-xl shadow-theme-lg border border-gray-200 dark:border-gray-700 flex flex-col max-h-[90vh]">
+      
+      <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+        <h3 id="modalTitle" class="text-lg font-bold text-gray-800 dark:text-white">Tambah Produk</h3>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4">
+        <input type="hidden" id="inp_id">
+        
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Nama Produk</label>
+          <input id="inp_name" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Harga (Rp)</label>
+            <input id="inp_price" type="number" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Harga Diskon (Rp)</label>
+            <input id="inp_discount" type="number" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Diskon Amount (%)</label>
+            <input id="inp_discount_amount" type="number" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">URL Gambar</label>
+          <input id="inp_image" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Deskripsi</label>
+          <textarea id="inp_desc" rows="3" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"></textarea>
+        </div>
+      </div>
+
+      <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+        <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
+        <button id="saveProductBtn" onclick="saveProduct()" class="px-4 py-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 shadow-theme-sm transition">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- --- DELETE CONFIRMATION MODAL --- -->
+  <div id="deleteModal" class="modal fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4">
+    <div class="modal-content bg-white dark:bg-gray-800 w-full max-w-sm rounded-xl shadow-theme-lg border border-gray-200 dark:border-gray-700 p-6 text-center">
+      <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Hapus Produk?</h3>
+      <p class="text-gray-500 text-sm mt-2">Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan.</p>
+      <div class="flex gap-3 justify-center mt-6">
+        <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">Batal</button>
+        <button id="confirmDeleteBtn" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-theme-sm transition">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- --- TOAST --- -->
+  <div id="toast" class="toast shadow-lg font-medium"></div>
+
+  <script>
+    // --- STATE MANAGEMENT ---
+    const state = { 
+      auth: null,
+      products: [] // Menyimpan data produk lokal untuk memudahkan edit
+    };
+
+    // Helper Format Rupiah
+    const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+
+    // --- TOAST NOTIFICATION ---
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // --- AUTHENTICATION ---
+    document.getElementById('logout').onclick = doLogout;
+    document.getElementById('mobileLogout').onclick = doLogout;
+    
+    function doLogout() {
+      state.auth = null;
+      document.getElementById('panel').classList.add('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('user').value = '';
+      document.getElementById('pass').value = '';
+    }
+
+    document.getElementById('doLogin').onclick = async function() {
+      const btn = this;
+      const u = document.getElementById('user').value;
+      const p = document.getElementById('pass').value;
+      
+      if(!u || !p) return showToast('Username dan Password wajib diisi', 'error');
+
+      btn.innerHTML = '<span class="loader"></span>';
+      btn.disabled = true;
+
+      state.auth = 'Basic ' + btoa(u + ':' + p);
+      
+      const ok = await tryAuth();
+      
+      if (ok) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('panel').classList.remove('hidden');
+        document.getElementById('loginStatus').textContent = '';
+        loadDashboard();
+        loadProducts();
+      } else {
+        state.auth = null;
+        document.getElementById('loginStatus').textContent = 'Login gagal. Periksa kredensial Anda.';
+      }
+      
+      btn.innerHTML = 'Masuk Dashboard';
+      btn.disabled = false;
+    };
+
+    async function tryAuth() {
+      try {
+        // Coba fetch dashboard untuk cek auth
+        const r = await fetch('/admin/dashboard', { headers: { Authorization: state.auth } });
+        if (r.status === 200) return true;
+      } catch (e) { console.error(e); }
+      return false;
+    }
+
+    // --- NAVIGATION ---
+    function showPage(pageId) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+      document.getElementById('view-' + pageId).classList.remove('hidden');
+      
+      if(pageId === 'dashboard') loadDashboard();
+      if(pageId === 'products') loadProducts();
+    }
+
+    // --- DATA FETCHING ---
+
+    async function loadDashboard() {
+      try {
+        const r = await fetch('/admin/dashboard', { headers: { Authorization: state.auth } });
+        const j = await r.json();
+        if(j.status) {
+          document.getElementById('dash-views').textContent = j.data.views || 0;
+          document.getElementById('dash-purchases').textContent = j.data.purchases || 0;
+          document.getElementById('dash-paid').textContent = j.data.paid || 0;
+          document.getElementById('dash-failed').textContent = j.data.failed || 0;
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    async function loadProducts() {
+      try {
+        const r = await fetch('/admin/products', { headers: { Authorization: state.auth } });
+        const j = await r.json();
+        const tbody = document.getElementById('productTableBody');
+        tbody.innerHTML = '';
+
+        if (j.status && j.data) {
+          state.products = j.data; // Simpan ke state
+          j.data.forEach(p => {
+            const row = `
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/25 transition">
+                <td class="p-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                      <img src="${p.product_image}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100'">
+                    </div>
+                    <div>
+                      <div class="text-sm font-semibold text-gray-800 dark:text-white">${p.product_name}</div>
+                      <div class="text-xs text-gray-500">ID: ${p.id}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-4 text-sm text-gray-600 dark:text-gray-300">${formatIDR(p.product_price)}</td>
+                <td class="p-4 text-sm">
+                  ${p.product_discount > 0 
+                    ? `<span class="text-success-600 font-medium">${formatIDR(p.product_discount)}</span>` 
+                    : '<span class="text-gray-400">-</span>'}
+                </td>
+                <td class="p-4 text-right">
+                  <button onclick="prepEdit(${p.id})" class="text-brand-500 hover:text-brand-600 font-medium text-sm mr-3">Edit</button>
+                  <button onclick="prepDelete(${p.id})" class="text-error-500 hover:text-error-600 font-medium text-sm">Hapus</button>
+                </td>
+              </tr>
+            `;
+            tbody.innerHTML += row;
+          });
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    // --- CRUD OPERATIONS ---
+
+    function val(id) { return document.getElementById(id).value; }
+    function setVal(id, v) { document.getElementById(id).value = v; }
+
+    // 1. Add / Edit Logic
+    function openModal(mode, id = null) {
+      const modal = document.getElementById('productModal');
+      const title = document.getElementById('modalTitle');
+      
+      // Reset form
+      setVal('inp_id', '');
+      setVal('inp_name', '');
+      setVal('inp_price', '');
+      setVal('inp_discount', '');
+      setVal('inp_discount_amount', '');
+      setVal('inp_image', '');
+      setVal('inp_desc', '');
+
+      if (mode === 'edit' && id) {
+        title.textContent = 'Edit Produk';
+        const p = state.products.find(x => x.id === id);
+        if(p) {
+          setVal('inp_id', p.id);
+          setVal('inp_name', p.product_name);
+          setVal('inp_price', p.product_price);
+          setVal('inp_discount', p.product_discount);
+          setVal('inp_discount_amount', p.product_discount_amount);
+          setVal('inp_image', p.product_image);
+          setVal('inp_desc', p.product_desc);
+        }
+      } else {
+        title.textContent = 'Tambah Produk Baru';
+      }
+      
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('productModal').classList.remove('active');
+    }
+
+    function prepEdit(id) {
+      openModal('edit', id);
+    }
+
+    async function saveProduct() {
+      const id = val('inp_id');
+      const method = id ? 'PUT' : 'POST';
+      
+      const body = {
+        product_name: val('inp_name'),
+        product_price: Number(val('inp_price')),
+        product_discount: Number(val('inp_discount')),
+        product_discount_amount: Number(val('inp_discount_amount')),
+        product_image: val('inp_image'),
+        product_desc: val('inp_desc')
+      };
+
+      if(id) body.id = Number(id);
+
+      // Basic validation
+      if(!body.product_name || !body.product_price) return showToast('Nama dan Harga wajib diisi', 'error');
+
+      try {
+        const r = await fetch('/admin/products', {
+          method: method,
+          headers: { 'Content-Type': 'application/json', Authorization: state.auth },
+          body: JSON.stringify(body)
+        });
+        const j = await r.json();
+        
+        if(j.status) {
+          showToast(id ? 'Produk berhasil diedit' : 'Produk berhasil ditambah');
+          closeModal();
+          loadProducts();
+        } else {
+          showToast(j.message || 'Gagal menyimpan', 'error');
+        }
+      } catch(e) {
+        showToast('Terjadi kesalahan koneksi', 'error');
+      }
+    }
+
+    // 2. Delete Logic
+    let deleteId = null;
+    function prepDelete(id) {
+      deleteId = id;
+      document.getElementById('deleteModal').classList.add('active');
+    }
+    
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('active');
+      deleteId = null;
+    }
+
+    document.getElementById('confirmDeleteBtn').onclick = async () => {
+      if(!deleteId) return;
+      
+      try {
+        const r = await fetch('/admin/products?id=' + deleteId, {
+          method: 'DELETE',
+          headers: { Authorization: state.auth }
+        });
+        const j = await r.json();
+        
+        if(j.status) {
+          showToast('Produk berhasil dihapus');
+          loadProducts();
+        } else {
+          showToast(j.message || 'Gagal menghapus', 'error');
+        }
+      } catch(e) {
+        showToast('Gagal menghapus', 'error');
+      }
+      closeDeleteModal();
+    };
+
+  </script>
+</body>
+</html>

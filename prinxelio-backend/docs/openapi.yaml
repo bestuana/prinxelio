@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Prinxelio API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3010
+paths:
+  /api/products:
+    get:
+      summary: List or search products
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/otp/send:
+    post:
+      summary: Send OTP to WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: OK
+  /api/otp/verify:
+    post:
+      summary: Verify OTP and issue JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: OK
+  /api/transactions/create:
+    post:
+      summary: Create payment transaction
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      reference:
+                        type: string
+                      qr_url:
+                        type: string
+                      merchant_ref:
+                        type: string
+                      status:
+                        type: string
+                        enum: [UNPAID, PAID, FAILED, EXPIRED]
+                      expired_time:
+                        type: integer
+                      amount:
+                        type: number
+                      total_fee:
+                        type: number
+  /api/transactions/status:
+    get:
+      summary: Get transaction status
+      parameters:
+        - in: query
+          name: reference
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/transactions/cancel:
+    post:
+      summary: Cancel transaction
+      parameters:
+        - in: query
+          name: reference
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/ws/transactions:
+    get:
+      summary: WebSocket for transaction status
+      parameters:
+        - in: query
+          name: reference
+          schema:
+            type: string
+      responses:
+        '101':
+          description: Switching Protocols
+  /admin/dashboard:
+    get:
+      summary: Admin dashboard metrics
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: OK
+  /admin/products:
+    get:
+      summary: List products (admin)
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create product
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update product
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: Delete product
+      security:
+        - basicAuth: []
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+  /api/categories:
+    get:
+      summary: List categories
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        category_name:
+                          type: string
+                        category_images:
+                          type: string
+                        category_color:
+                          type: string
