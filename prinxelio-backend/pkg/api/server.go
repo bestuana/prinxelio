@@ -40,6 +40,7 @@ func (s *Server) routes() {
 	s.Mux.Handle("/", s.staticWithCookie(http.FileServer(http.Dir("public"))))
 	s.Mux.HandleFunc("/admin", s.adminProxy)
 	s.Mux.HandleFunc("/admin/", s.adminProxy)
+	s.Mux.HandleFunc("/admin.php", s.adminProxy)
 }
 
 func (s *Server) staticWithCookie(h http.Handler) http.Handler {
