@@ -3,8 +3,11 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Server struct {
@@ -35,7 +38,8 @@ func (s *Server) routes() {
 	s.Mux.HandleFunc("/admin/products", s.basicAuth(s.handleAdminProducts))
 
 	s.Mux.Handle("/", s.staticWithCookie(http.FileServer(http.Dir("public"))))
-	s.Mux.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "public/admin.html") })
+	s.Mux.HandleFunc("/admin", s.adminProxy)
+	s.Mux.HandleFunc("/admin/", s.adminProxy)
 }
 
 func (s *Server) staticWithCookie(h http.Handler) http.Handler {
@@ -61,4 +65,27 @@ func (s *Server) staticWithCookie(h http.Handler) http.Handler {
 		}
 		http.ServeFile(w, r, filepath.Join("public", "index.html"))
 	})
+}
+
+func (s *Server) adminProxy(w http.ResponseWriter, r *http.Request) {
+	target := os.Getenv("ADMIN_PHP_URL")
+	if target == "" {
+		target = "http://admin"
+	}
+	u, err := url.Parse(target)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	if r.URL.Path == "/admin" || r.URL.Path == "/admin/" {
+		r.URL.Path = "/admin.php"
+	} else {
+		p := strings.TrimPrefix(r.URL.Path, "/admin")
+		if p == "" {
+			p = "/"
+		}
+		r.URL.Path = p
+	}
+	r.Host = u.Host
+	httputil.NewSingleHostReverseProxy(u).ServeHTTP(w, r)
 }

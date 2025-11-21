@@ -25,4 +25,20 @@ services:
       TIME_OTP: "120"
       AUTH_USER: "ADMIN"
       AUTH_PASS: "ADMIN"
+      ADMIN_PHP_URL: "http://admin"
     restart: unless-stopped
+
+  admin:
+    image: php:8.2-apache
+    container_name: prinxelio-admin
+    volumes:
+      - ./public/admin.php:/var/www/html/admin.php:ro
+      - ./public/images:/var/www/html/images:ro
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      ADMIN_USER: ${AUTH_USER}
+      ADMIN_PASS: ${AUTH_PASS}

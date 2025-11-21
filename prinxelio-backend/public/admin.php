@@ -5,16 +5,15 @@ session_start();
 // 1. KONFIGURASI & KONEKSI DATABASE
 // ==================================================================================
 
-define('DB_HOST', '103.87.67.77');
-define('DB_PORT', '3306');
-define('DB_USER', 'user_prinxelio_digital');
-define('DB_PASS', '@Digital081297');
-define('DB_NAME', 'user_prinxelio_digital');
-// Kredensi Login Admin
-define('ADMIN_USER', 'admin');
-define('ADMIN_PASS', 'admin123');
+define('DB_HOST', getenv('DB_HOST') ?: '103.87.67.77');
+define('DB_PORT', getenv('DB_PORT') ?: '3306');
+define('DB_USER', getenv('DB_USER') ?: 'user_prinxelio_digital');
+define('DB_PASS', getenv('DB_PASS') ?: '@Digital081297');
+define('DB_NAME', getenv('DB_NAME') ?: 'user_prinxelio_digital');
+define('ADMIN_USER', getenv('ADMIN_USER') ?: 'admin');
+define('ADMIN_PASS', getenv('ADMIN_PASS') ?: 'admin123');
 
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, intval(DB_PORT));
 if ($conn->connect_error) {
     die("Koneksi Gagal: " . $conn->connect_error);
 }
